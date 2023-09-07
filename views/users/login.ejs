@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+    <form action="/login" method="post">
+        <p><%= locals.error %></p>
+        <label for="usernameoremail">Username or Email:</label>
+        <input type="text" name="usernameoremail" value="<%= locals.usernameoremail %>" required>
+        <label for="pwd">Password:</label>
+        <input type="password" name="pwd" required>
+        <button type="submit">Login</button>
+    </form>
+</body>
+</html>

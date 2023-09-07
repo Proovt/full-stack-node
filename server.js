@@ -1,5 +1,6 @@
 if(process.env.NODE_ENV !== 'production') {
     require('dotenv').config()
+    console.log('local')
 }
 
 const express = require('express')
@@ -8,11 +9,16 @@ const app = express()
 const mongoose = require('mongoose')
 
 const indexRouter = require('./routes/index')
+const authRouter = require('./routes/authentication')
+const userRouter = require('./routes/users')
+const postRouter = require('./routes/posts')
 
 app.set('view engine', 'ejs')
 
-/* static files */
 app.use(express.static('public'))
+app.use(express.urlencoded({
+    extended: true
+}))
 
 mongoose.connect(process.env.DATABASE_URL, {
     useNewUrlParser: true
@@ -23,5 +29,8 @@ db.on('error', err => console.log(err))
 db.once('open', () => console.log('connected to database'))
 
 app.use('/', indexRouter)
+app.use('/', authRouter)
+app.use('/users', userRouter)
+app.use('/posts', postRouter)
 
 app.listen(process.env.PORT || 8000)

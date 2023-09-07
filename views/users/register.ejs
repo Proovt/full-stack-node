@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    <form action="/register" method="post">
+        <p><%= locals.error %></p>
+        <label for="username">Username:</label>
+        <input type="text" name="username" value="<%= locals.username %>" required>
+        <label for="email">Email:</label>
+        <input type="text" name="email" value="<%= locals.email %>" required>
+        <label for="pwd">Password:</label>
+        <input type="password" name="pwd" value="<%= locals.pwd %>" required>
+        <label for="pwd_repeat">Repeat Password:</label>
+        <input type="password" name="pwd_repeat" required>
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>
