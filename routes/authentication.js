@@ -1,28 +1,13 @@
 const express = require('express')
+const passport = require('passport')
 const User = require('../models/User')
 const router = express.Router()
 
-router.post('/login', async (req, res) => {
-    const usernameoremail = req.body.usernameoremail
-    const pwd = req.body.pwd
-
-    const user = await User.findOne({
-        $or: [
-          { username: usernameoremail },
-          { email: usernameoremail }
-        ]
-      })
-
-    if(!user) {
-        return res.status(404).render('users/login', {usernameoremail, error: 'No user found'})
-    }
-
-    if(await user.validatePassword(pwd)) {
-        res.redirect('/')
-    } else {
-        res.status(400).render('users/login', {username, error: 'Wrong passwords'})
-    }
-})
+router.post('/login', passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/login',
+    failureFlash: false
+}))
 
 router.post('/register', async (req, res) => {
     const username = req.body.username
@@ -46,21 +31,31 @@ router.post('/register', async (req, res) => {
         return res.status(400).render('users/register', {username, email, error: 'Passwords do not match'})
     }
 
-    const user = await User.findOne({
+    const otherUser = await User.findOne({
         $or: [{ username }, { email }],
     })
 
-    if(!!user) {
+    if(!!otherUser) {
         return res.status(400).render('users/register', {username, email, pwd, error: 'Username or Email already taken'})
     }
 
     try {
-        await User.create({
+        const user = await User.create({
             username,
             email,
             password: pwd
         })
-        res.redirect('/')
+        req.login(user, (err) => {
+            if(err) {
+                return res.status(500).render('users/register', {
+                    username,
+                    email,
+                    pwd,
+                    error: 'Internal Server Error. Try again later.',
+                });
+            }
+            return res.redirect('/');
+        })
     } catch (error) {
         res.status(500).render('users/register', {username, email, error: 'Server error: Please try again later' + error})
     }
@@ -72,6 +67,11 @@ router.get('/login', (req, res) => {
 
 router.get('/register', (req, res) => {
     res.render('users/register')
+})
+
+router.delete('/logout', (req, res) => {
+    req.logOut()
+    res.redirect('/')
 })
 
 module.exports = router

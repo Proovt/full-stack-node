@@ -6,7 +6,13 @@ if(process.env.NODE_ENV !== 'production') {
 const express = require('express')
 const app = express()
 
+const session = require('express-session')
+// const methodOverride = require('')
 const mongoose = require('mongoose')
+const passport = require('passport')
+
+const {initializePassport, checkAuthenticated, checkNotAuthenticated} = require('./passport-config')
+initializePassport(passport)
 
 const indexRouter = require('./routes/index')
 const authRouter = require('./routes/authentication')
@@ -19,6 +25,13 @@ app.use(express.static('public'))
 app.use(express.urlencoded({
     extended: true
 }))
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false
+}))
+app.use(passport.initialize())
+app.use(passport.session())
 
 mongoose.connect(process.env.DATABASE_URL, {
     useNewUrlParser: true
@@ -29,7 +42,7 @@ db.on('error', err => console.log(err))
 db.once('open', () => console.log('connected to database'))
 
 app.use('/', indexRouter)
-app.use('/', authRouter)
+app.use('/', checkAuthenticated, authRouter)
 app.use('/users', userRouter)
 app.use('/posts', postRouter)
 
