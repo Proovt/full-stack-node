@@ -7,7 +7,7 @@ const express = require('express')
 const app = express()
 
 const session = require('express-session')
-// const methodOverride = require('')
+const methodOverride = require('method-override')
 const mongoose = require('mongoose')
 const passport = require('passport')
 
@@ -32,6 +32,7 @@ app.use(session({
 }))
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(methodOverride('_method'))
 
 mongoose.connect(process.env.DATABASE_URL, {
     useNewUrlParser: true
@@ -42,8 +43,11 @@ db.on('error', err => console.log(err))
 db.once('open', () => console.log('connected to database'))
 
 app.use('/', indexRouter)
-app.use('/', checkAuthenticated, authRouter)
+app.use('/', authRouter)
 app.use('/users', userRouter)
 app.use('/posts', postRouter)
+app.get('*', (req, res) => {
+    res.status(404).render('404')
+})
 
 app.listen(process.env.PORT || 8000)

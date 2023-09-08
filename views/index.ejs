@@ -6,11 +6,13 @@
     <title>Document</title>
 </head>
 <body>
-    Hello <%= locals.text %>!
-    <% if(locals.msg) { %>
-        <p><%= msg %></p>
+    <% if(locals.loggedIn) { %>
+        <form action="/logout?_method=DELETE" method="POST">
+            <button type="submit">Logout</button>
+        </form>
+    <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
     <% } %>
-
-    <%= locals.loggedInText %>
 </body>
 </html>

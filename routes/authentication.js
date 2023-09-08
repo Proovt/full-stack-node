@@ -2,6 +2,14 @@ const express = require('express')
 const passport = require('passport')
 const User = require('../models/User')
 const router = express.Router()
+const { checkAuthenticated, checkNotAuthenticated } = require('../passport-config')
+
+router.delete('/logout', checkNotAuthenticated, (req, res) => {
+    req.logOut(err => console.log(err))
+    res.redirect('/')
+})
+
+router.use(checkAuthenticated)
 
 router.post('/login', passport.authenticate('local', {
     successRedirect: '/',
@@ -67,11 +75,6 @@ router.get('/login', (req, res) => {
 
 router.get('/register', (req, res) => {
     res.render('users/register')
-})
-
-router.delete('/logout', (req, res) => {
-    req.logOut()
-    res.redirect('/')
 })
 
 module.exports = router
